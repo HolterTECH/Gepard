@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Проекты | Project Tracker</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/projects.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-left">
+            <span class="logo">Project Tracker</span>
+        </div>
+        <div class="nav-center">
+            <a href="/main" class="nav-link">Главная</a>
+            <a href="/projects" class="nav-link active">Проекты</a>
+            <a href="#" class="nav-link">Мои задачи</a>
+            <a href="#" class="nav-link">Календарь</a>
+        </div>
+        <div class="nav-right">
+            <div class="profile-dropdown">
+                <button class="profile-button" id="profileButton">
+                    <div class="profile-icon">
+                        {{ username[0]|upper }}
+                    </div>
+                </button>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="/profile" class="dropdown-item">Настройки</a>
+                    <a href="/logout" class="dropdown-item logout">Выйти</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="projects-content">
+        <div class="projects-header">
+            <h1 class="page-title">Проекты</h1>
+            <button class="create-project-btn" id="createProjectBtn">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Создать проект
+            </button>
+        </div>
+
+        <!-- Контекстное меню создания проекта -->
+        <div class="modal-overlay" id="projectModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Создать новый проект</h2>
+                    <button class="close-modal" id="closeModalBtn">&times;</button>
+                </div>
+                <form id="createProjectForm">
+                    <div class="form-group">
+                        <label for="projectName">Название проекта *</label>
+                        <input type="text" id="projectName" placeholder="Введите название проекта" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="projectDescription">Описание</label>
+                        <textarea id="projectDescription" placeholder="Введите описание проекта" rows="4"></textarea>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="cancel-btn" id="cancelBtn">Отмена</button>
+                        <button type="submit" class="create-btn">Создать</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Список проектов -->
+        <div class="projects-grid" id="projectsGrid">
+            <!-- Проекты будут загружаться сюда -->
+            <div class="loading-spinner" id="loadingSpinner">
+                <div class="spinner"></div>
+                <p>Загрузка проектов...</p>
+            </div>
+        </div>
+
+        <!-- Контекстное меню для проекта -->
+        <div class="project-context-menu" id="projectContextMenu">
+            <button class="context-menu-item edit-project">Редактировать</button>
+            <button class="context-menu-item delete-project">Удалить</button>
+        </div>
+
+        <!-- Модальное окно редактирования -->
+        <div class="modal-overlay" id="editModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Редактировать проект</h2>
+                    <button class="close-modal" id="closeEditModalBtn">&times;</button>
+                </div>
+                <form id="editProjectForm">
+                    <input type="hidden" id="editProjectId">
+                    <div class="form-group">
+                        <label for="editProjectName">Название проекта *</label>
+                        <input type="text" id="editProjectName" placeholder="Введите название проекта" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editProjectDescription">Описание</label>
+                        <textarea id="editProjectDescription" placeholder="Введите описание проекта" rows="4"></textarea>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="cancel-btn" id="cancelEditBtn">Отмена</button>
+                        <button type="submit" class="create-btn">Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/projects.js"></script>
+</body>
+</html>

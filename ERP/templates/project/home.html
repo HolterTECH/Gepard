@@ -1,0 +1,166 @@
+{% extends "project/base.html" %}
+
+{% block title %}Главная проекта | Project Tracker{% endblock %}
+
+{% block content %}
+<div class="section-header">
+    <h1>Главная проекта</h1>
+</div>
+
+<div class="dashboard-widgets">
+    <!-- Виджет статистики -->
+    <div class="widget-row">
+        <div class="widget-card">
+            <div class="widget-header">
+                <h3>Статистика проекта</h3>
+            </div>
+            <div class="widget-content">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-label">Всего задач</span>
+                        <span class="stat-value" id="totalTasks">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Выполнено</span>
+                        <span class="stat-value" id="completedTasks">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">В процессе</span>
+                        <span class="stat-value" id="inProgressTasks">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Участников</span>
+                        <span class="stat-value" id="teamMembers">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="widget-card">
+            <div class="widget-header">
+                <h3>Активность</h3>
+            </div>
+            <div class="widget-content">
+                <div class="activity-list" id="activityList">
+                    <p class="placeholder-text">Здесь будет отображаться активность</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Виджет ближайших задач -->
+    <div class="widget-card">
+        <div class="widget-header">
+            <h3>Ближайшие задачи</h3>
+            <a href="/project/{{ project_id }}/tasks" class="widget-link">Все задачи →</a>
+        </div>
+        <div class="widget-content">
+            <div class="upcoming-tasks" id="upcomingTasks">
+                <p class="placeholder-text">Нет ближайших задач</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Виджет последних совещаний -->
+    <div class="widget-card">
+        <div class="widget-header">
+            <h3>Последние совещания</h3>
+            <a href="/project/{{ project_id }}/meetings" class="widget-link">Все совещания →</a>
+        </div>
+        <div class="widget-content">
+            <div class="recent-meetings" id="recentMeetings">
+                <p class="placeholder-text">Нет запланированных совещаний</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Стили для виджетов главной страницы */
+.widget-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.widget-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s;
+}
+
+.widget-card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.widget-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.widget-link {
+    color: #667eea;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s;
+}
+
+.widget-link:hover {
+    color: #5a67d8;
+    text-decoration: underline;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-label {
+    display: block;
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    display: block;
+    font-size: 32px;
+    font-weight: 600;
+    color: #667eea;
+}
+
+.placeholder-text {
+    color: #999;
+    text-align: center;
+    padding: 40px;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .widget-row {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/project/home.js"></script>
+{% endblock %}

@@ -1,0 +1,301 @@
+{% extends "project/base.html" %}
+
+{% block title %}Предложения по проекту | Project Tracker{% endblock %}
+
+{% block content %}
+<div class="section-header">
+    <h1>Предложения по проекту</h1>
+    <button class="create-btn" id="createProposalBtn">+ Внести предложение</button>
+</div>
+
+<div class="proposals-container">
+    <div class="proposals-filters">
+        <select class="filter-select" id="statusFilter">
+            <option value="all">Все статусы</option>
+            <option value="new">Новые</option>
+            <option value="under_review">На рассмотрении</option>
+            <option value="approved">Одобренные</option>
+            <option value="rejected">Отклоненные</option>
+        </select>
+        <select class="filter-select" id="sortFilter">
+            <option value="newest">Сначала новые</option>
+            <option value="oldest">Сначала старые</option>
+            <option value="popular">Популярные</option>
+        </select>
+    </div>
+
+    <div class="proposals-list" id="proposalsList">
+        <!-- Пример карточки предложения -->
+        <div class="proposal-card">
+            <div class="proposal-header">
+                <div>
+                    <h3 class="proposal-title">Улучшение интерфейса задач</h3>
+                    <span class="proposal-status status-new">Новое</span>
+                </div>
+                <span class="proposal-date">12 марта 2024</span>
+            </div>
+            <p class="proposal-description">
+                Предлагаю добавить возможность группировки задач по тегам 
+                и фильтрации по нескольким критериям одновременно.
+            </p>
+            <div class="proposal-footer">
+                <div class="proposal-author">
+                    <div class="author-avatar">А</div>
+                    <span class="author-name">Алексей Петров</span>
+                </div>
+                <div class="proposal-stats">
+                    <span class="proposal-votes">👍 12</span>
+                    <span class="proposal-comments">💬 5</span>
+                </div>
+                <div class="proposal-actions">
+                    <button class="vote-btn">👍 Поддержать</button>
+                    <button class="comment-btn">💬 Комментировать</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="proposal-card">
+            <div class="proposal-header">
+                <div>
+                    <h3 class="proposal-title">Интеграция с Telegram</h3>
+                    <span class="proposal-status status-review">На рассмотрении</span>
+                </div>
+                <span class="proposal-date">10 марта 2024</span>
+            </div>
+            <p class="proposal-description">
+                Сделать бота для получения уведомлений о задачах и возможности 
+                создавать задачи через Telegram.
+            </p>
+            <div class="proposal-footer">
+                <div class="proposal-author">
+                    <div class="author-avatar">М</div>
+                    <span class="author-name">Мария Иванова</span>
+                </div>
+                <div class="proposal-stats">
+                    <span class="proposal-votes">👍 8</span>
+                    <span class="proposal-comments">💬 3</span>
+                </div>
+                <div class="proposal-actions">
+                    <button class="vote-btn voted">👍 Поддержано</button>
+                    <button class="comment-btn">💬 Комментировать</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.proposals-container {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.proposals-filters {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.filter-select {
+    padding: 8px 16px;
+    border: 2px solid #e1e1e1;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #333;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.filter-select:hover {
+    border-color: #667eea;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.proposals-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.proposal-card {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    transition: all 0.3s;
+}
+
+.proposal-card:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.proposal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.proposal-header > div {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.proposal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.proposal-status {
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.status-new {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.status-review {
+    background: #fff3e0;
+    color: #f57c00;
+}
+
+.status-approved {
+    background: #e8f5e9;
+    color: #388e3c;
+}
+
+.status-rejected {
+    background: #ffebee;
+    color: #d32f2f;
+}
+
+.proposal-date {
+    font-size: 14px;
+    color: #999;
+}
+
+.proposal-description {
+    color: #666;
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.proposal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.proposal-author {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.author-avatar {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.author-name {
+    font-size: 14px;
+    color: #333;
+}
+
+.proposal-stats {
+    display: flex;
+    gap: 16px;
+    color: #666;
+    font-size: 14px;
+}
+
+.proposal-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.vote-btn {
+    background: none;
+    border: 2px solid #667eea;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    color: #667eea;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.vote-btn:hover {
+    background: #667eea;
+    color: white;
+}
+
+.vote-btn.voted {
+    background: #667eea;
+    color: white;
+}
+
+.comment-btn {
+    background: none;
+    border: 2px solid #e1e1e1;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.comment-btn:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+@media (max-width: 768px) {
+    .proposals-filters {
+        flex-direction: column;
+    }
+    
+    .proposal-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .proposal-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/project/proposals.js"></script>
+{% endblock %}

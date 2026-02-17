@@ -1,0 +1,565 @@
+{% extends "project/base.html" %}
+
+{% block title %}База знаний | Project Tracker{% endblock %}
+
+{% block extra_css %}
+<style>
+.knowledge-container {
+    display: flex;
+    gap: 24px;
+    height: calc(100vh - 180px);
+}
+
+/* Боковая панель с разделами */
+.knowledge-sidebar {
+    width: 280px;
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.knowledge-search {
+    margin-bottom: 20px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e1e1e1;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.knowledge-sections {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.section-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    margin-bottom: 4px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    color: #666;
+}
+
+.section-item:hover {
+    background: #f5f5f5;
+}
+
+.section-item.active {
+    background: #667eea;
+    color: white;
+}
+
+.section-icon {
+    margin-right: 12px;
+    font-size: 18px;
+}
+
+.section-name {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.section-count {
+    background: #f0f0f0;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    color: #666;
+}
+
+.section-item.active .section-count {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.add-section-btn {
+    margin-top: 20px;
+    padding: 12px;
+    background: none;
+    border: 2px dashed #e1e1e1;
+    border-radius: 8px;
+    color: #666;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.add-section-btn:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+/* Основная область контента */
+.knowledge-main {
+    flex: 1;
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.knowledge-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.knowledge-header h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.header-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.action-btn.primary {
+    background: #667eea;
+    color: white;
+}
+
+.action-btn.primary:hover {
+    background: #5a67d8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.action-btn.secondary {
+    background: #f5f5f5;
+    color: #666;
+}
+
+.action-btn.secondary:hover {
+    background: #e8e8e8;
+}
+
+/* Список документов */
+.knowledge-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.document-item {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.document-item:hover {
+    background: #fafafa;
+    transform: translateX(4px);
+}
+
+.document-icon {
+    width: 40px;
+    height: 40px;
+    background: #f0f0f0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+    font-size: 20px;
+}
+
+.document-content {
+    flex: 1;
+}
+
+.document-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.document-meta {
+    font-size: 13px;
+    color: #999;
+    display: flex;
+    gap: 16px;
+}
+
+.document-actions {
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.document-item:hover .document-actions {
+    opacity: 1;
+}
+
+.doc-action-btn {
+    background: none;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    color: #999;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.doc-action-btn:hover {
+    background: #f0f0f0;
+    color: #667eea;
+}
+
+/* Пустое состояние */
+.empty-knowledge {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.empty-knowledge h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.empty-knowledge p {
+    color: #999;
+    margin-bottom: 24px;
+}
+
+/* Модальное окно для документа */
+.document-form .form-group {
+    margin-bottom: 20px;
+}
+
+.document-form textarea {
+    min-height: 200px;
+    font-family: inherit;
+    resize: vertical;
+}
+
+/* Теги */
+.document-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.tag {
+    background: #f0f0f0;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 12px;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tag-remove {
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+}
+
+.tag-remove:hover {
+    color: #e53e3e;
+}
+
+.add-tag-input {
+    border: 2px dashed #e1e1e1;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 12px;
+    width: 100px;
+}
+
+.add-tag-input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .knowledge-container {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .knowledge-sidebar {
+        width: 100%;
+    }
+    
+    .knowledge-header {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+    
+    .header-actions {
+        width: 100%;
+    }
+    
+    .action-btn {
+        flex: 1;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="section-header">
+    <h1>База знаний</h1>
+</div>
+
+<div class="knowledge-container">
+    <!-- Боковая панель с разделами -->
+    <div class="knowledge-sidebar">
+        <div class="knowledge-search">
+            <input type="text" class="search-input" placeholder="🔍 Поиск по документам...">
+        </div>
+        
+        <div class="knowledge-sections" id="knowledgeSections">
+            <div class="section-item active" data-section="all">
+                <span class="section-icon">📚</span>
+                <span class="section-name">Все документы</span>
+                <span class="section-count">0</span>
+            </div>
+            <div class="section-item" data-section="technical">
+                <span class="section-icon">⚙️</span>
+                <span class="section-name">Техническая документация</span>
+                <span class="section-count">0</span>
+            </div>
+            <div class="section-item" data-section="requirements">
+                <span class="section-icon">📋</span>
+                <span class="section-name">Требования</span>
+                <span class="section-count">0</span>
+            </div>
+            <div class="section-item" data-section="design">
+                <span class="section-icon">🎨</span>
+                <span class="section-name">Дизайн</span>
+                <span class="section-count">0</span>
+            </div>
+            <div class="section-item" data-section="guides">
+                <span class="section-icon">📖</span>
+                <span class="section-name">Инструкции</span>
+                <span class="section-count">0</span>
+            </div>
+            <div class="section-item" data-section="notes">
+                <span class="section-icon">📝</span>
+                <span class="section-name">Заметки</span>
+                <span class="section-count">0</span>
+            </div>
+        </div>
+        
+        <button class="add-section-btn" id="addSectionBtn">
+            <span>+</span> Добавить раздел
+        </button>
+    </div>
+    
+    <!-- Основная область -->
+    <div class="knowledge-main">
+        <div class="knowledge-header">
+            <h2 id="currentSection">Все документы</h2>
+            <div class="header-actions">
+                <button class="action-btn secondary" id="importDocBtn">
+                    📥 Импорт
+                </button>
+                <button class="action-btn primary" id="createDocBtn">
+                    + Создать документ
+                </button>
+            </div>
+        </div>
+        
+        <div class="knowledge-list" id="knowledgeList">
+            <!-- Пример документа -->
+            <div class="document-item">
+                <div class="document-icon">📄</div>
+                <div class="document-content">
+                    <div class="document-title">Техническое задание</div>
+                    <div class="document-meta">
+                        <span>Обновлен 15.03.2024</span>
+                        <span>Автор: Алексей Петров</span>
+                        <span class="document-tags">
+                            <span class="tag">тз</span>
+                            <span class="tag">требования</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="document-actions">
+                    <button class="doc-action-btn" title="Редактировать">✎</button>
+                    <button class="doc-action-btn" title="Скачать">📥</button>
+                    <button class="doc-action-btn" title="Удалить">🗑</button>
+                </div>
+            </div>
+            
+            <div class="document-item">
+                <div class="document-icon">🎨</div>
+                <div class="document-content">
+                    <div class="document-title">UI Kit и дизайн-система</div>
+                    <div class="document-meta">
+                        <span>Обновлен 14.03.2024</span>
+                        <span>Автор: Елена Кузнецова</span>
+                        <span class="document-tags">
+                            <span class="tag">дизайн</span>
+                            <span class="tag">ui</span>
+                            <span class="tag">figma</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="document-actions">
+                    <button class="doc-action-btn" title="Редактировать">✎</button>
+                    <button class="doc-action-btn" title="Скачать">📥</button>
+                    <button class="doc-action-btn" title="Удалить">🗑</button>
+                </div>
+            </div>
+            
+            <div class="document-item">
+                <div class="document-icon">📖</div>
+                <div class="document-content">
+                    <div class="document-title">Инструкция по развертыванию</div>
+                    <div class="document-meta">
+                        <span>Обновлен 10.03.2024</span>
+                        <span>Автор: Дмитрий Смирнов</span>
+                        <span class="document-tags">
+                            <span class="tag">devops</span>
+                            <span class="tag">deploy</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="document-actions">
+                    <button class="doc-action-btn" title="Редактировать">✎</button>
+                    <button class="doc-action-btn" title="Скачать">📥</button>
+                    <button class="doc-action-btn" title="Удалить">🗑</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Модальное окно создания документа -->
+<div class="modal-overlay" id="documentModal">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h2>Создать документ</h2>
+            <button class="close-modal" id="closeDocModal">&times;</button>
+        </div>
+        <form class="document-form" id="documentForm">
+            <div class="form-group">
+                <label for="docTitle">Название документа *</label>
+                <input type="text" id="docTitle" placeholder="Введите название" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="docSection">Раздел</label>
+                <select id="docSection">
+                    <option value="technical">Техническая документация</option>
+                    <option value="requirements">Требования</option>
+                    <option value="design">Дизайн</option>
+                    <option value="guides">Инструкции</option>
+                    <option value="notes">Заметки</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="docContent">Содержание</label>
+                <textarea id="docContent" placeholder="Введите содержание документа..." rows="8"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Теги</label>
+                <div class="document-tags" id="docTags">
+                    <span class="tag">тз <span class="tag-remove">×</span></span>
+                    <span class="tag">важное <span class="tag-remove">×</span></span>
+                    <input type="text" class="add-tag-input" placeholder="+ добавить тег">
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn" id="cancelDocBtn">Отмена</button>
+                <button type="submit" class="create-btn">Создать</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Модальное окно добавления раздела -->
+<div class="modal-overlay" id="sectionModal">
+    <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-header">
+            <h2>Новый раздел</h2>
+            <button class="close-modal" id="closeSectionModal">&times;</button>
+        </div>
+        <form id="sectionForm">
+            <div class="form-group">
+                <label for="sectionName">Название раздела *</label>
+                <input type="text" id="sectionName" placeholder="Например: API документация" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="sectionIcon">Иконка (эмодзи)</label>
+                <input type="text" id="sectionIcon" placeholder="📁" value="📁">
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn" id="cancelSectionBtn">Отмена</button>
+                <button type="submit" class="create-btn">Добавить</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/project/knowledge.js"></script>
+{% endblock %}

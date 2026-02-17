@@ -1,0 +1,290 @@
+{% extends "project/base.html" %}
+
+{% block title %}Задачи проекта | Project Tracker{% endblock %}
+
+{% block content %}
+<div class="section-header">
+    <h1>Реестр задач проекта</h1>
+    <button class="create-btn" id="createTaskBtn">+ Создать задачу</button>
+</div>
+
+<!-- Панель фильтрации -->
+<div class="filters-panel">
+    <div class="filters-row">
+        <div class="filter-group">
+            <label>Состояние:</label>
+            <select id="statusFilter" class="filter-select">
+                <option value="all">Все состояния</option>
+                <option value="planned">Запланировано</option>
+                <option value="in_progress">В работе</option>
+                <option value="completed">Выполнено</option>
+                <option value="overdue">Просрочено</option>
+                <option value="deadline_soon">Срыв сроков</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label>Исполнитель:</label>
+            <select id="assigneeFilter" class="filter-select">
+                <option value="all">Все исполнители</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label>Приоритет:</label>
+            <select id="priorityFilter" class="filter-select">
+                <option value="all">Все приоритеты</option>
+                <option value="low">Низкий</option>
+                <option value="medium">Средний</option>
+                <option value="high">Высокий</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label>Поиск:</label>
+            <input type="text" id="searchFilter" class="filter-input" placeholder="Название задачи...">
+        </div>
+
+        <button class="clear-filters-btn" id="clearFiltersBtn">Сбросить фильтры</button>
+    </div>
+</div>
+
+<!-- Реестр задач -->
+<div class="tasks-registry">
+    <table class="tasks-table" id="tasksTable">
+        <thead>
+            <tr>
+                <th class="sortable" data-sort="state">Состояние</th>
+                <th class="sortable" data-sort="title">Название задачи</th>
+                <th class="sortable" data-sort="assignee">Исполнитель</th>
+                <th class="sortable" data-sort="priority">Приоритет</th>
+                <th class="sortable" data-sort="planned_start">План. дата начала</th>
+                <th class="sortable" data-sort="actual_start">Факт. дата начала</th>
+                <th class="sortable" data-sort="planned_end">План. дата окончания</th>
+                <th class="sortable" data-sort="actual_end">Факт. дата окончания</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody id="tasksTableBody">
+            <!-- Задачи будут загружаться сюда -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Пагинация -->
+<div class="pagination" id="pagination">
+    <!-- Элементы пагинации будут добавлены через JS -->
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Модальное окно создания задачи -->
+<div class="modal-overlay" id="createTaskModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Создать задачу</h2>
+            <button class="close-modal" id="closeCreateTaskModal">&times;</button>
+        </div>
+        <form id="createTaskForm">
+            <input type="hidden" id="parentTaskId" name="parent_task_id" value="">
+            <input type="hidden" id="previousTaskId" name="previous_task_id" value="">
+            <input type="hidden" id="projectId" name="project_id" value="{{ project_id }}">
+            
+            <div class="form-group">
+                <label for="taskTitle">Название задачи *</label>
+                <input type="text" id="taskTitle" name="title" required maxlength="200">
+            </div>
+
+            <div class="form-group">
+                <label for="taskDescription">Описание</label>
+                <textarea id="taskDescription" name="description" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="taskAssignee">Исполнитель</label>
+                <select id="taskAssignee" name="assignee_id">
+                    <option value="">Выберите исполнителя</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="taskPriority">Приоритет</label>
+                    <select id="taskPriority" name="priority">
+                        <option value="low">Низкий</option>
+                        <option value="medium" selected>Средний</option>
+                        <option value="high">Высокий</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="taskStatus">Статус</label>
+                    <select id="taskStatus" name="status">
+                        <option value="planned">Запланировано</option>
+                        <option value="in_progress">В работе</option>
+                        <option value="completed">Выполнено</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="plannedStartDate">План. дата начала</label>
+                    <input type="date" id="plannedStartDate" name="planned_start_date">
+                </div>
+                <div class="form-group">
+                    <label for="actualStartDate">Факт. дата начала</label>
+                    <input type="date" id="actualStartDate" name="actual_start_date">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="plannedEndDate">План. дата окончания</label>
+                    <input type="date" id="plannedEndDate" name="due_date">
+                </div>
+                <div class="form-group">
+                    <label for="actualEndDate">Факт. дата окончания</label>
+                    <input type="date" id="actualEndDate" name="actual_end_date">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="predecessorTask">Задача-предшественник</label>
+                <select id="predecessorTask" name="predecessor_task_id">
+                    <option value="">Нет предшественника</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Действие после сохранения:</label>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" name="after_save_action" value="none" checked>
+                        Просто сохранить
+                    </label>
+                    <label>
+                        <input type="radio" name="after_save_action" value="create_next">
+                        Создать следующую задачу
+                    </label>
+                    <label>
+                        <input type="radio" name="after_save_action" value="create_subtask">
+                        Создать подзадачу
+                    </label>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn" id="cancelCreateTaskBtn">Отмена</button>
+                <button type="button" class="create-btn" onclick="saveTask()">Создать</button>
+                <button type="button" class="create-btn" onclick="saveAndCreateNew()">Создать и ещё</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Модальное окно редактирования задачи -->
+<div class="modal-overlay" id="editTaskModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Редактировать задачу</h2>
+            <button class="close-modal" id="closeEditTaskModal">&times;</button>
+        </div>
+        <form id="editTaskForm">
+            <input type="hidden" id="editTaskId">
+            
+            <div class="form-group">
+                <label for="editTaskTitle">Название задачи *</label>
+                <input type="text" id="editTaskTitle" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editTaskDescription">Описание</label>
+                <textarea id="editTaskDescription" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="editTaskAssignee">Исполнитель</label>
+                <select id="editTaskAssignee">
+                    <option value="">Выберите исполнителя</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="editTaskPriority">Приоритет</label>
+                    <select id="editTaskPriority">
+                        <option value="low">Низкий</option>
+                        <option value="medium">Средний</option>
+                        <option value="high">Высокий</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editTaskStatus">Статус</label>
+                    <select id="editTaskStatus">
+                        <option value="planned">Запланировано</option>
+                        <option value="in_progress">В работе</option>
+                        <option value="completed">Выполнено</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="editPlannedStartDate">План. дата начала</label>
+                    <input type="date" id="editPlannedStartDate">
+                </div>
+                <div class="form-group">
+                    <label for="editActualStartDate">Факт. дата начала</label>
+                    <input type="date" id="editActualStartDate">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="editPlannedEndDate">План. дата окончания</label>
+                    <input type="date" id="editPlannedEndDate">
+                </div>
+                <div class="form-group">
+                    <label for="editActualEndDate">Факт. дата окончания</label>
+                    <input type="date" id="editActualEndDate">
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn" id="cancelEditTaskBtn">Отмена</button>
+                <button type="submit" class="create-btn">Сохранить</button>
+                <button type="button" class="delete-btn" id="deleteTaskBtn">Удалить</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Модальное окно подтверждения -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Подтверждение</h3>
+            <button class="close-modal" id="closeConfirmModal">&times;</button>
+        </div>
+        <div class="confirm-content">
+            <p id="confirmMessage">Вы хотите сохранить текущую задачу и создать новую?</p>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="cancel-btn" onclick="closeConfirmModal()">Нет</button>
+            <button type="button" class="create-btn" onclick="proceedWithNewTask()">Да</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/project/tasks.js"></script>
+<script>
+    const projectId = {{ project_id }};
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        loadProjectTeam();
+        loadTasks();
+    });
+</script>
+{% endblock %}

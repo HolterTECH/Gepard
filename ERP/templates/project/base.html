@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Проект | Project Tracker{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/project.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-left">
+            <span class="logo">Project Tracker</span>
+        </div>
+        <div class="nav-center">
+            <a href="/main" class="nav-link">Главная</a>
+            <a href="/projects" class="nav-link">Проекты</a>
+            <a href="#" class="nav-link">Мои задачи</a>
+            <a href="#" class="nav-link">Календарь</a>
+        </div>
+        <div class="nav-right">
+            <div class="profile-dropdown">
+                <button class="profile-button" id="profileButton">
+                    <div class="profile-icon">
+                        {{ username[0]|upper }}
+                    </div>
+                </button>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="/profile" class="dropdown-item">Настройки</a>
+                    <a href="/logout" class="dropdown-item logout">Выйти</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="project-layout">
+        <!-- Левое меню проекта -->
+        <aside class="project-sidebar" id="projectSidebar">
+            <div class="sidebar-header">
+                <h2 class="project-name" id="projectName">Загрузка...</h2>
+                <button class="sidebar-toggle" id="sidebarToggle">⟨</button>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="/project/{{ project_id }}/home" class="nav-item {% if active_section == 'home' %}active{% endif %}">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-text">Главная</span>
+                </a>
+                <a href="/project/{{ project_id }}/tasks" class="nav-item {% if active_section == 'tasks' %}active{% endif %}">
+                    <span class="nav-icon">✓</span>
+                    <span class="nav-text">Задачи проекта</span>
+                </a>
+                <a href="/project/{{ project_id }}/knowledge" class="nav-item {% if active_section == 'knowledge' %}active{% endif %}">
+                    <span class="nav-icon">📚</span>
+                    <span class="nav-text">База знаний</span>
+                </a>
+                <a href="/project/{{ project_id }}/calendar" class="nav-item {% if active_section == 'calendar' %}active{% endif %}">
+                    <span class="nav-icon">📅</span>
+                    <span class="nav-text">Календарь проекта</span>
+                </a>
+                <a href="/project/{{ project_id }}/meetings" class="nav-item {% if active_section == 'meetings' %}active{% endif %}">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-text">Совещания проекта</span>
+                </a>
+                <a href="/project/{{ project_id }}/proposals" class="nav-item {% if active_section == 'proposals' %}active{% endif %}">
+                    <span class="nav-icon">💡</span>
+                    <span class="nav-text">Предложения по проекту</span>
+                </a>
+                <a href="/project/{{ project_id }}/team" class="nav-item {% if active_section == 'team' %}active{% endif %}">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-text">Команда проекта</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="project-status" id="projectStatus">
+                    <span class="status-badge active">Активный</span>
+                </div>
+                <div class="project-meta">
+                    <span class="created-date" id="createdDate"></span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Основной контент -->
+        <main class="project-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Модальные окна -->
+    {% block modals %}{% endblock %}
+
+    <script src="/static/js/main.js"></script>
+    <script>
+        const projectId = {{ project_id }};
+        const activeSection = '{{ active_section }}';
+    </script>
+    <script src="/static/js/project.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

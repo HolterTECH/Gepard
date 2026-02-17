@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Проект | Project Tracker</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/project.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-left">
+            <span class="logo">Project Tracker</span>
+        </div>
+        <div class="nav-center">
+            <a href="/main" class="nav-link">Главная</a>
+            <a href="/projects" class="nav-link">Проекты</a>
+            <a href="#" class="nav-link">Мои задачи</a>
+            <a href="#" class="nav-link">Календарь</a>
+        </div>
+        <div class="nav-right">
+            <div class="profile-dropdown">
+                <button class="profile-button" id="profileButton">
+                    <div class="profile-icon">
+                        {{ username[0]|upper }}
+                    </div>
+                </button>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="/profile" class="dropdown-item">Настройки</a>
+                    <a href="/logout" class="dropdown-item logout">Выйти</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="project-layout">
+        <!-- Левое меню проекта -->
+        <aside class="project-sidebar">
+            <div class="sidebar-header">
+                <h2 class="project-name" id="projectName">Загрузка...</h2>
+                <button class="sidebar-toggle" id="sidebarToggle">⟨</button>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-section="home">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-text">Главная</span>
+                </a>
+                <a href="#" class="nav-item" data-section="tasks">
+                    <span class="nav-icon">✓</span>
+                    <span class="nav-text">Задачи проекта</span>
+                </a>
+                <a href="#" class="nav-item" data-section="calendar">
+                    <span class="nav-icon">📅</span>
+                    <span class="nav-text">Календарь проекта</span>
+                </a>
+                <a href="#" class="nav-item" data-section="meetings">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-text">Совещания проекта</span>
+                </a>
+                <a href="#" class="nav-item" data-section="proposals">
+                    <span class="nav-icon">💡</span>
+                    <span class="nav-text">Предложения по проекту</span>
+                </a>
+                <a href="#" class="nav-item" data-section="team">
+                    <span class="nav-icon">👤</span>
+                    <span class="nav-text">Команда проекта</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="project-status" id="projectStatus">
+                    <span class="status-badge active">Активный</span>
+                </div>
+                <div class="project-meta">
+                    <span class="created-date" id="createdDate"></span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Основной контент -->
+        <main class="project-content" id="projectContent">
+            <!-- Секция Главная -->
+            <section class="content-section active" id="home-section">
+                <div class="section-header">
+                    <h1>Главная проекта</h1>
+                </div>
+                <div class="dashboard-widgets">
+                    <div class="widget-placeholder">
+                        <p>Здесь будут виджеты с информацией о проекте</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Секция Задачи -->
+            <section class="content-section" id="tasks-section">
+                <div class="section-header">
+                    <h1>Задачи проекта</h1>
+                    <div class="view-toggle">
+                        <button class="toggle-btn active" data-view="list">📋 Список</button>
+                        <button class="toggle-btn" data-view="kanban">📊 Канбан</button>
+                        <button class="toggle-btn" data-view="graph">🕸️ Граф</button>
+                    </div>
+                    <button class="create-btn" id="createTaskBtn">+ Создать задачу</button>
+                </div>
+
+                <!-- Вид Список -->
+                <div class="tasks-view list-view active" id="list-view">
+                    <div class="tasks-list" id="tasksList">
+                        <!-- Задачи будут загружаться сюда -->
+                    </div>
+                </div>
+
+                <!-- Вид Канбан -->
+                <div class="tasks-view kanban-view" id="kanban-view">
+                    <div class="kanban-columns">
+                        <div class="kanban-column" data-status="todo">
+                            <div class="column-header">
+                                <h3>Нужно сделать</h3>
+                                <span class="task-count" id="todo-count">0</span>
+                            </div>
+                            <div class="column-tasks" id="todo-tasks"></div>
+                        </div>
+                        <div class="kanban-column" data-status="in_progress">
+                            <div class="column-header">
+                                <h3>В процессе</h3>
+                                <span class="task-count" id="progress-count">0</span>
+                            </div>
+                            <div class="column-tasks" id="progress-tasks"></div>
+                        </div>
+                        <div class="kanban-column" data-status="review">
+                            <div class="column-header">
+                                <h3>На проверке</h3>
+                                <span class="task-count" id="review-count">0</span>
+                            </div>
+                            <div class="column-tasks" id="review-tasks"></div>
+                        </div>
+                        <div class="kanban-column" data-status="done">
+                            <div class="column-header">
+                                <h3>Готово</h3>
+                                <span class="task-count" id="done-count">0</span>
+                            </div>
+                            <div class="column-tasks" id="done-tasks"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Вид Граф (в стиле Obsidian) -->
+                <div class="tasks-view graph-view" id="graph-view">
+                    <div class="graph-container" id="graphContainer">
+                        <canvas id="taskGraph"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Секция Календарь -->
+            <section class="content-section" id="calendar-section">
+                <div class="section-header">
+                    <h1>Календарь проекта</h1>
+                </div>
+                <div class="calendar-placeholder">
+                    <p>Здесь будет календарь проекта</p>
+                </div>
+            </section>
+
+            <!-- Секция Совещания -->
+            <section class="content-section" id="meetings-section">
+                <div class="section-header">
+                    <h1>Совещания проекта</h1>
+                    <button class="create-btn" id="createMeetingBtn">+ Назначить совещание</button>
+                </div>
+                <div class="meetings-list" id="meetingsList">
+                    <!-- Совещания будут загружаться сюда -->
+                </div>
+            </section>
+
+            <!-- Секция Предложения -->
+            <section class="content-section" id="proposals-section">
+                <div class="section-header">
+                    <h1>Предложения по проекту</h1>
+                    <button class="create-btn" id="createProposalBtn">+ Внести предложение</button>
+                </div>
+                <div class="proposals-list" id="proposalsList">
+                    <!-- Предложения будут загружаться сюда -->
+                </div>
+            </section>
+
+            <!-- Секция Команда -->
+            <section class="content-section" id="team-section">
+                <div class="section-header">
+                    <h1>Команда проекта</h1>
+                    <button class="create-btn" id="addTeamMemberBtn">+ Добавить участника</button>
+                </div>
+                <div class="team-grid" id="teamGrid">
+                    <!-- Команда будет загружаться сюда -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Модальное окно создания задачи -->
+    <div class="modal-overlay" id="taskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Создать задачу</h2>
+                <button class="close-modal" id="closeTaskModal">&times;</button>
+            </div>
+            <form id="createTaskForm">
+                <div class="form-group">
+                    <label for="taskTitle">Название задачи *</label>
+                    <input type="text" id="taskTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskDescription">Описание</label>
+                    <textarea id="taskDescription" rows="3"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taskPriority">Приоритет</label>
+                        <select id="taskPriority">
+                            <option value="low">Низкий</option>
+                            <option value="medium" selected>Средний</option>
+                            <option value="high">Высокий</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskDueDate">Срок</label>
+                        <input type="date" id="taskDueDate">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="cancel-btn" id="cancelTaskBtn">Отмена</button>
+                    <button type="submit" class="create-btn">Создать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/project.js"></script>
+    <script>
+        // Передаем ID проекта в JavaScript
+        const projectId = {{ project_id }};
+    </script>
+</body>
+</html>
